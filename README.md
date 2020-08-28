@@ -2,8 +2,8 @@
 This is part of a project to analyse Trump's tweets and their effects on the stock market. My role was to do text cleaning, exploration and analyasis
 
 ### Tools/Packages Used:
-* sklearn
-* nltk
+* sklearn.decomposition, sklearn.feature_extraction, sklearn.cluster
+* nltk.stem, nltk.corpus, nltk.tokenize
 * vaderSentiment
 * wordcloud
 * textblob
