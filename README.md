@@ -20,4 +20,5 @@ I created a dataframe matching the tweets and Dow Jones information over time an
 I ran a variety of sentiment analysis algorythms, including tweetbob,  Naive Bayes and Vader. Taking Vader as a the most effective I built a explratory interface where I could graph search terms over a space based on aspects of the data. For example. Dow daily volatilty against time or Tweet sentiment against Dow. This program is searchable_sentiment_dji_dataframe.py. In general the results were non linear and it was hard to find a clear pattern.
 #### Topic categorization
 Next I did topic categorization of the tweets, looking to find a connection between the terms that would produce a clearer result. The topic categorization required much more data cleaning (see trump_data_cleaning.py). In this step I also calyculated term frequency and created a dictionary of vocaulary used. For the topic categorization I used LDA and NMF to create clusters of words looking for underlying patterns of terms that would help in anlyzing the texts. See topic_categorizor_nmf.py for results.
-
+#### Topic categorization with BERT
+In order to retain semantic information when doing topic categorization the best choice seems to be to combine LDA and BERT using BERT as service.
