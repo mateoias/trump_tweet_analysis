@@ -22,7 +22,7 @@ def create_word_cloud(user_text):
 				   background_color='white',
 				   min_font_size=10)
 	#call word cloud
-	word_cloud_imgage = wc.generate_from_text(' '.join(word_cloud_text))
+	word_cloud_image = wc.generate_from_text(' '.join(word_cloud_text))
 	#plot the WordCloud image
 	plt.figure(figsize=(8, 8), facecolor=None)
 	plt.imshow(word_cloud_image)
@@ -30,8 +30,8 @@ def create_word_cloud(user_text):
 	plt.tight_layout(pad=0)
 	plt.show()
 
-# a function to load the topic clusters from CSV
-def load_topic_data(i):
+# a function to load the topic clusters from the CSV
+def load_topic_data():
 	topic_word_list = []
 	# import the csv file with the topic clusters and extract the text entries
 	with open("../data/topic_groups.csv", "r") as f:
@@ -41,15 +41,45 @@ def load_topic_data(i):
 			topic_word_list.append(data)
 	# create a dataframe of the topic words and return the top 10 words
 	data_df = pd.DataFrame(topic_word_list)
-	search_words = data_df.iloc[1:11, i]
-	print(search_words)
+
+# a function to let the user choose which topic to look at
+def get_user_search_words():
+	# check validity of user input
+	while True:
+		user_search_topic = input("Which topic would you like to view? There are 28 topics to choose from: ")
+		if not 0<int(user_search_topic)<29:
+			print("Please enter an integer between 1 and 28.")
+		#better try again... Return to the start of the loop
+			continue
+		else:
+			break
+	# call the load data function
+	data_df = load_topic_data()
+	# return the top ten words from the topic cluster selected by the user
+	topic_number = 2 * (int(user_search_topic)-1)
+	search_words = data_df.iloc[1:11, topic_number]
+	search_word_weights = data_df.iloc[1:11, topic_number+1]
+	print(search_words, search_word_weights)
 	return search_words.values.tolist()
 
+# a function to load the topic clusters from the CSV and return a dataframe of the top 10 words for each cluster
+def load_topic_data():
+	topic_word_list = []
+	# import the csv file with the topic clusters and extract the text entries
+	with open("../data/topic_groups.csv", "r") as f:
+		csvReader = csv.reader(f)
+		for row in csvReader:
+			data = row
+			topic_word_list.append(data)
+	# create a dataframe of the top 10 words for each topic cluster
+	data_df = pd.DataFrame(topic_word_list)
+	return data_df
 
 # import and clean all tweets
-def import_data():
+def import_tweets():
 # import the csv file and extract the text entries
-	search_term_list = load_topic_data(40)
+	search_term_list = get_user_search_words()
+	print(search_term_list)
 	with open('../data/condensed_dow_and_sentiment.csv', 'r') as f:
 		csvReader = csv.DictReader(f)
 		tweet_list = []
@@ -92,27 +122,13 @@ def import_data():
 		df["Tweet"] = original_tweet_list
 		df = df.drop(columns = ["A", "B", "C", "F"])
 		create_word_cloud(user_text)
-		return dataframe, search_term_list
+		return df, search_term_list
 
 # call the import data function and create the search term list 
-dataframe, search_term_list = import_data()
+tweet_dataframe, search_term_list = import_tweets()
 search_terms = ' '.join(map(str, search_term_list))
 
-# start_date = input("please enter starting date (yyyy-mm-dd ")
-# pd.to_datetime(start_date, format='%Y-%m-%d')
-
-# end_date = input("please enter the ending date (yyyy-mm-dd) ")
-# pd.to_datetime(end_date, format = '%Y-%m-%d')
-
-# print(type(df["Time"]))
-# df['Time'] = pd.to_datetime(df['Time'])
-# df.head()
-# df['Time'] = df['Time'].dt.date
-# print(type(df["Time"][0]))
-# df = df.set_index(['Time'])
-# # print(df.loc['start_date':'end_date'])
-# print(type(end_date))
-fig = px.scatter(df, x= "Time",y="Sentiment", hover_data=["Tweet", "Sentiment"])
+fig = px.scatter(tweet_dataframe, x= "Time",y="Sentiment", hover_data=["Tweet", "Sentiment"])
 fig.update_layout(
 		title={
 			'text': "Results for: " + search_terms,
