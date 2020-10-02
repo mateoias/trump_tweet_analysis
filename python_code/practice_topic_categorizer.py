@@ -1,37 +1,17 @@
-from sklearn.decomposition import LatentDirichletAllocation
-from nltk.stem import WordNetLemmatizer
-from sklearn.decomposition import NMF
-from sklearn.feature_extraction.text import CountVectorizer
-from sklearn.cluster import KMeans
-import pickle
-import plotly.express as px
-import csv
-import pandas as pd
+import pandas as pd from sklearn.feature_extraction.text
+import TfidfTransformer from sklearn.feature_extraction.text
+import CountVectorizer
+docs = ["the house had a tiny little mouse",
+        "the cat saw the mouse",
+        "the mouse ran away from the house",
+        "the cat finally ate the mouse",
+        "the end of the mouse story"
+        ]
+# the vectorizer object will be used to transform text to vector form
 
-pd.set_option("display.max_rows", None, "display.max_columns", None)
-
-# pd.set_option("display.max_rows", None, "display.max_columns", None)
-
-
-def load_data():
-	clean_tweet_list = []
-	# import the csv file and extract the text entries as strings
-	with open('../data/clean_tweet_list.csv', 'r') as f:
-		csvReader = csv.reader(f)
-		clean_tweet_list = []
-		for row in csvReader:
-			data = row
-			listToStr = ' '.join(map(str, data))
-			clean_tweet_list.append(listToStr)
-			# df = pd.DataFrame(clean_tweet_list, columns=["tweets"])
-	return clean_tweet_list
-
-# the vectorizer object will be used to transform text (string) to vector form
-tweet_data = load_data()
-
-vectorizer = CountVectorizer(max_df = 0.1, min_df=3)
+vectorizer = CountVectorizer()
 # apply transformation
-tf = vectorizer.fit_transform(tweet_data)
+tf = vectorizer.fit_transform(docs)
 # tf_feature_names tells us what word each column in the matric represents
 tf_feature_names = vectorizer.get_feature_names()
 number_of_topics = 10
@@ -56,16 +36,15 @@ def display_topics(model, feature_names, no_top_words):
 
 # # Do a NMF model
 # i is the number of topics, no_top_words = number of words in the topic list
-for i in range(9,30):
-	no_top_words = 10
-	model = NMF(n_components=i, random_state=0, max_iter=750, alpha=.1, l1_ratio=.5)
+for i in range(9,12,2):
+	no_top_words = 8
+	model = NMF(n_components=i, random_state=0, max_iter=500, alpha=.1, l1_ratio=.5)
 	model.fit(tf)
 	nmf_topics = display_topics(model, tf_feature_names, no_top_words)
 	pd.set_option("display.max_rows", None, "display.max_columns", None)
 	print(f"NMF results: for {i} topics.")
 	print(nmf_topics)
 
-nmf_topics.to_csv(r'../data/topic_groups.csv', index=False)
 
  
 # # how does kmeans work

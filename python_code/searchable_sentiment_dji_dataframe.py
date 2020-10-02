@@ -19,7 +19,7 @@ def get_input():
 def import_data():
 # import the csv file and extract the text entries
     search_term = get_input()
-    with open('condensed_dow_and_sentiment.csv', 'r') as f:
+    with open('../data/condensed_dow_and_sentiment.csv', 'r') as f:
         csvReader = csv.DictReader(f)
         dow_tweet_list = []
         clean_tweet_list = []
