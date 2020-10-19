@@ -109,7 +109,7 @@ def dow_jones_dataframe(sentiment_df):
 
 def import_dow_jones_data():
 # import the Dow Jones CSV, minus adjusted close
-    with open('../data/DJI.csv', 'r') as f:
+    with open('../data/raw_dow_jones_data.csv', 'r') as f:
         csvReader = csv.DictReader(f)
         dow_data = []
         for row in csvReader:
