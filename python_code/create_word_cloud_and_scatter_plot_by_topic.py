@@ -4,24 +4,22 @@ import re
 import csv
 import matplotlib.pyplot as plt
 import pandas as pd
+
+import nltk
+nltk.download('stopwords')
 from wordcloud import WordCloud, STOPWORDS
 from nltk.corpus import stopwords
 stop_words = set(stopwords.words('english'))
 
 # a function to create a word cloud of Trump's tweets that contain the topic words searched for by the user
 def create_word_cloud(user_text):
-	#function to flatten the user text data array
 	def flatten_user_text(user_text): return [
 		item for sublist in user_text for item in sublist]
-	# create the word cloud text
 	word_cloud_text = flatten_user_text(user_text)
-	# create a word cloud object
-	wc = WordCloud(width=800, height=800,
+	word_cloud = WordCloud(width=800, height=800,
 				   background_color='white',
 				   min_font_size=10)
-	#call word cloud
-	word_cloud_image = wc.generate_from_text(' '.join(word_cloud_text))
-	#plot the WordCloud image
+	word_cloud_image = word_cloud.generate_from_text(' '.join(word_cloud_text))
 	plt.figure(figsize=(8, 8), facecolor=None)
 	plt.imshow(word_cloud_image)
 	plt.axis("off")
@@ -31,13 +29,11 @@ def create_word_cloud(user_text):
 # a function to load the topic clusters from the CSV
 def load_topic_data():
 	topic_word_list = []
-	# import the csv file with the topic clusters and extract the text entries
 	with open("../data/topic_groups.csv", "r") as f:
 		csvReader = csv.reader(f)
 		for row in csvReader:
 			data = row
 			topic_word_list.append(data)
-	# create a dataframe of the topic words and return the top 10 words
 	data_df = pd.DataFrame(topic_word_list)
 
 # a function to let the user choose which topic to look at

@@ -6,11 +6,9 @@ import json
 import string
 import pandas as pd
 
-pd.set_option("display.max_rows", None, "display.max_columns", None)
-
 #import standard stopwords from NLTK, may need to customize this list
-search_term = input("Please enter a search term:\n")
-search_term = search_term.lower()
+# search_term = input("Please enter a search term:\n")
+# search_term = search_term.lower()
 
 stop_words = set(stopwords.words('english'))
 # import the json file and extract the text entries

@@ -9,11 +9,9 @@ import matplotlib.pyplot as plt
 import pandas as pd
 from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
 analyser = SentimentIntensityAnalyzer()
-pd.set_option("display.max_rows", None, "display.max_columns", None)
 
-# import and clean all tweets
+# import and clean all tweets; cleaning is for use in VADER, so just remove hyperlinks
 def clean_text():
-# import the json file and extract the text entries
     all_tweets = []
     with open('../data/trumptweets.json', 'r') as f:
         trump_dict = json.load(f)
@@ -21,8 +19,6 @@ def clean_text():
         for tweet in trump_dict:
             data = tweet["text"], tweet["created_at"]
             trump_tweet_list.append(data)
-# clean the text
-        #remove hyperlinks
         for tweet in trump_tweet_list:
             text = tweet[0]
             time = tweet[1]
@@ -30,8 +26,9 @@ def clean_text():
             tweets = text,time
             all_tweets.append(tweets)
         sentiment_df = vader_sentiment_analyzer(all_tweets)
-        dow_jones_dataframe(sentiment_df)
-
+        dow_df = dow_jones_dataframe(sentiment_df)
+        condensed_df = create_merged_data_frame(sentiment_df, dow_df)
+        return condensed_df
 
 # function to perform Vader Analysis on cleaned tweets
 def vader_sentiment_analyzer(all_tweets):
@@ -47,9 +44,6 @@ def vader_sentiment_analyzer(all_tweets):
         data = all_tweets[i]
         text=data[0]
         time=data[1]
-        # vader analyzer returns a category (negative, neutral, positive)
-        # and returns a ranking for each category (adding up to 1)
-        #we take the compound value
         tweet_text.append(text)
         vader_test = analyser.polarity_scores(text)
         vader_sentiment.append(vader_test)
@@ -61,7 +55,6 @@ def vader_sentiment_analyzer(all_tweets):
         i += 1
     # create a dataframe of the Vader results
     sentiment_df = pd.DataFrame(vader_compound, columns = ["Vader_compound"]) 
-    # print(user_text)
     sentiment_df["Vader_pos"] = vader_pos
     sentiment_df["Vader_neg"] = vader_neg
     sentiment_df["Vader_neutral"] = vader_neutral
@@ -70,27 +63,24 @@ def vader_sentiment_analyzer(all_tweets):
     # convert "created at" to datetime
     sentiment_df["Time"] = pd.to_datetime(sentiment_df["Time"],
     infer_datetime_format = "%d/%m/%Y", utc = True)
+    sentiment_df = sentiment_df.sort_values('Time')
     return sentiment_df
-
-
 
 # create dow jones dataframe
 def dow_jones_dataframe(sentiment_df):
     dow_data = import_dow_jones_data()
     dow_df = pd.DataFrame(dow_data, columns=["Date", "Open", "High", "Low", "Close", "Volume"])
-    # create a volatility column
     dow_df["Volatility"] = dow_df["High"] - dow_df["Low"]
-    #convert dow data to datetime
     dow_df["Date"] = pd.to_datetime(dow_df["Date"],
     infer_datetime_format="%Y/%m/%d", utc=True)
-    # sort dataframes  by date
-    sentiment_df = sentiment_df.sort_values('Time')
     dow_df = dow_df.sort_values('Date')
+    return dow_df
+ #merge the dow jones and tweet dataframes
+def create_merged_data_frame(sentiment_df, dow_df):     
     #get a tweet count per day
     sentiment_df['just_date'] = sentiment_df['Time'].dt.date
     sentiment_df['Tweet_count'] = sentiment_df.groupby(
         "just_date")["just_date"].transform("count")
-   # merge tweet dataframe and dow dataframe 
     final_df = pd.merge_asof(sentiment_df, dow_df,
                              left_on="Time", right_on="Date")
     final_df.drop(columns="Time")
@@ -104,8 +94,7 @@ def dow_jones_dataframe(sentiment_df):
     new = condensed_df["Time"].str.split("+", n=1, expand = True)
     condensed_df["Time"] = new[0]
     condensed_df = condensed_df.round(decimals=3)
-    print(condensed_df)
-    condensed_df.to_csv('condensed_dow_and_sentiment.csv')
+    return condensed_df
 
 def import_dow_jones_data():
 # import the Dow Jones CSV, minus adjusted close
@@ -116,5 +105,7 @@ def import_dow_jones_data():
             data = row["Date"], float(row["Open"]), float(row["High"]), float(row["Low"]), float(row["Close"]), float(row["Volume"])
             dow_data.append(data)
     return dow_data
+if __name__ == "__main__":
+    condensed_df = clean_text()
+    condensed_df.to_csv('../data/condensed_dow_and_sentiment.csv')
 
-clean_text()
