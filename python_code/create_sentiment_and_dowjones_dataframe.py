@@ -13,11 +13,11 @@ analyser = SentimentIntensityAnalyzer()
 # import and clean all tweets; cleaning is for use in VADER, so just remove hyperlinks
 def clean_text():
     all_tweets = []
-    with open('../data/trumptweets.json', 'r') as f:
+    with open('../data/tweets_until_01_08_2021.json', 'r') as f:
         trump_dict = json.load(f)
         trump_tweet_list = []
         for tweet in trump_dict:
-            data = tweet["text"], tweet["created_at"]
+            data = tweet["text"], tweet["date"]
             trump_tweet_list.append(data)
         for tweet in trump_tweet_list:
             text = tweet[0]
@@ -95,7 +95,7 @@ def create_merged_data_frame(sentiment_df, dow_df):
     condensed_df["Time"] = new[0]
     condensed_df = condensed_df.round(decimals=3)
     return condensed_df
-
+ 
 def import_dow_jones_data():
 # import the Dow Jones CSV, minus adjusted close
     with open('../data/raw_dow_jones_data.csv', 'r') as f:

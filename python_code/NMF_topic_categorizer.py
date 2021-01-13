@@ -12,7 +12,7 @@ import pandas as pd
 def load_data():
 	clean_tweet_list = []
 	# import the csv file and extract the text entries as strings
-	with open('../data/clean_tweet_list.csv', 'r') as f:
+	with open('../data/tweet_data_frame.csv', 'r') as f:
 		csvReader = csv.reader(f)
 		clean_tweet_list = []
 		for row in csvReader:
