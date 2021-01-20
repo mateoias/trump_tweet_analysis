@@ -1,60 +1,69 @@
 import pandas as pd
 import numpy as np
-import csv
+import json
+from nltk.corpus import stopwords
+stop_words = set(stopwords.words('english'))
 
-# take the original tweets , remove stopwords and punctuation other than #,#, 
-# remove some unneccessary tokens and make everything lowercase: create a datframe with sentiment and Time
-# def pos_tagger(word):
-# 	"""Map POS tag to first character lemmatize() accepts"""
-# 	tag = nltk.pos_tag([word])[0][1][0].upper()
-# 	tag_dict = {"J": wordnet.ADJ,
-# 				"N": wordnet.NOUN,
-# 				"V": wordnet.VERB,
-# 				"R": wordnet.ADV}
+# create a dictionary for the vocabulary in trump's tweets
 
-# 	return tag_dict.get(tag, wordnet.NOUN)
+
+# def clean_text():
+#     all_tweets = []
+#     with open('../data/tweets_until_01_08_2021.json', 'r') as f:
+#         trump_dict = json.load(f)
+#         trump_tweet_list = []
+#         for tweet in trump_dict:
+#             data = tweet["text"], tweet["date"]
+#             trump_tweet_list.append(data)
+
 
 def load_data():
 	clean_tweet_list = []
 	# import the csv file and extract the text entries
-	with open('../data/clean_tweet_list.csv', 'r') as f:
-		csvReader = csv.reader(f)
-		clean_tweet_list = []
-		for row in csvReader:
-			data = row
-			clean_tweet_list.append(data)
-	return clean_tweet_list
+	with open('../data/tweets_until_01_08_2021.json', 'r') as f:
+		trump_dict = json.load(f)
+		tweet_list = []
+		for tweet in trump_dict:
+			data = tweet["text"]
+			tweet_list.append(data)
+	return tweet_list
 
-
-
-# def to count word frquency and make a vocab list of all words used
+def clean_text(tweet_list):
+	for text in tweet_list:
+		text = text.replace('&amp', '')
+		text = text.replace('U.S.', 'usa')
+		text = text.replace('RT', '')
+		text = text.replace('dems', 'democrats')
+		tokens = text.split()
+		tokens = [word.lower() for word in tokens]
+		content_words = [w for w in tokens if not w in stop_words]
+# Remove punctuation no roman alphabet words from each tweet, add  or c=="#" or c=="@" to keep # and @
+		tokens = ["".join(c for c in word if c.isalpha()) for word in tokens]
+		# tweet_string = tweets_text[i]
+		# tweet_list = list(tweet_string.split(" "))
+	return tokens
+# def to count word frequency and make a vocab list of all words used
 def word_counter():
-
 	tweets_text = load_data()
-	print(tweets_text)
+	clean_tweets = clean_text(tweets_text)
 	# Create a dictionary with the vocabulary and their tweet ids
 	DF = {}
-	for i in range(len(tweets_text)):
-		tokens = tweets_text[i]
-		for w in tokens:
+	for i in range(len(clean_tweets)):
+		tweet_string = clean_tweets[i]
+		tweet_list = list(tweet_string.split(" "))
+		content_word_tweet = [w for w in tweet_list if not w in stop_words]
+
+		for w in content_word_tweet:
 			try:
 				DF[w].add(i)
-			# .add is a set function (creates a set), so it will only add 1 time, set values have to be unique
 			except:
 				DF[w] = {i}
-	# the except adds the word if the word doesn't exist in the dictionary (creates a key and stores the first index)
 	for word in DF:
-		#get the number of occurences of each word
 		DF[word] = len(DF[word])
-		#extract the words with # and @
-
-# 	# from collections import Counter
-# 	# number = Counter(references)
 
 	sorted_frequency = sorted(DF.items(), key = lambda x: x[1], reverse = True)
-# #	remove the blank spaces at position 0
-	print(f"The top 40 words are {sorted_frequency[1:40]}")
-# 	# create a list of unique words
 	total_vocab = [x for x in DF]
 	print(f"There are {len(total_vocab)}  unique words after cleaning")
+	print(f"The top 40 words are {sorted_frequency[1:40]}")
+
 word_counter()
