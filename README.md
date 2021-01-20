@@ -1,5 +1,5 @@
 # Trump Tweet Analysis
-This is part of a project to analyse Trump's tweets and their effects on the stock market. My role was to do text cleaning, exploration and analysis
+This is part of a project to analyse Trump's tweets and their effects on the stock market. My role was to do text cleaning, exploration and analysis. We didn't find any significant effect on the stock market, but I am continuing to parse the text and refactor the code (it's a bit messy at the moment).  
 
 ### Tools/Packages Used:
 * sklearn.decomposition, sklearn.feature_extraction, sklearn.cluster
