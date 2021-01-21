@@ -1,25 +1,26 @@
 import plotly.express as px
+import plotly.graph_objects as go
+import textwrap
 import seaborn as sns
 import re
 import csv
 import matplotlib.pyplot as plt
 import pandas as pd
 import nltk
-# nltk.download('stopwords')
 from wordcloud import WordCloud, STOPWORDS
 from nltk.corpus import stopwords
 stop_words = set(stopwords.words('english'))
 
 # return a flat list for the nested list of tweets
-def flatten_clean_tweet_list(clean_tweet_list):
+def flatten_clean_tweet_list(tweet_text):
 	flat_list = []
-	for sublist in clean_tweet_list:
+	for sublist in tweet_text:
 		for item in sublist:
 			flat_list.append(item)
 	return flat_list
 	# a function to create a word cloud of all of Trump's tweets that contain the topic words searched for by the user
-def create_word_cloud(clean_tweet_list):
-	flat_list = flatten_clean_tweet_list(clean_tweet_list)
+def create_word_cloud(tweet_text):
+	flat_list = flatten_clean_tweet_list(tweet_text)
 	text = " ".join(flat_list)
 	word_cloud = WordCloud(width=800, height=800,
 				   background_color='white',
@@ -31,20 +32,28 @@ def create_word_cloud(clean_tweet_list):
 	plt.tight_layout(pad=0)
 	plt.show()
 
-def create_scatter_plot(user_search_words, tweet_data_frame):
-	search_terms = ' '.join(map(str, user_search_words))
-	# fig = px.scatter(tweet_data_frame, x=1, y=2,
-    #               hover_data=[3, 2])
-	# fig.update_layout(
-    #         title={
-    #             'text': "Results for: " + search_terms,
-    #             'y': 0.99,
-    #        					'x': 0.5,
-    #        					'xanchor': 'center',
-    #        					'yanchor': 'top'})
-	# fig.show()
+#  A function to create a scatterplot of all tweets within the topic 
+# def create_scatter_plot(user_topic_words, relevant_tweet_list):
+# 	search_terms = ' '.join(map(str, user_topic_words))
+
+# 	fig = go.Figure(data = go.Scatter(
+# 		x = relevant_tweet_list['tweet_time'],
+# 		y = relevant_tweet_list['tweet_sentiment'],
+# 		text = relevant_tweet_list['tweet_text']
+# 	))
+# 	fig.update_layout(
+#             title={
+#                 'text': "Results for: " + search_terms,
+#                 'y': 0.99,
+#            					'x': 0.5,
+#            					'xanchor': 'center',
+#            					'yanchor': 'top'})
+# 	fig.show()
+        # hover_data = relevant_tweet_list["tweet_text"].apply(
+        #     lambda txt: '<br>'.join(textwrap.wrap(txt, width=50))))
 	
-	# return the top 10 words from the topic cluster selected by the user
+
+	# a function to return the top 10 words from the topic cluster selected by the user
 def get_user_search_topic():
 	while True:
 		print("You may either choose a predefined topic or input your own search term. \n")
@@ -81,16 +90,29 @@ def load_topic_data():
 # a function to get all of the tweet data
 def load_tweets():
 	with open("../data/tweet_data_frame.csv", "r") as f:
-		clean_tweet_list = []
+		tweet_time = []
+		tweet_sentiment = []
+		tweet_text = []
 		csvReader = csv.reader(f)
+		next(csvReader, None)
+
 		for row in csvReader:
 			data = row
-			clean_tweet_list.append(data[4])
-	return clean_tweet_list	
+			tweet_time.append(data[1])
+			tweet_sentiment.append(data[2])
+			tweet_text.append(data[3])
+		all_tweet_data = pd.DataFrame(
+			{'tweet_time': tweet_time,
+			'tweet_sentiment': tweet_sentiment,
+			'tweet_text': tweet_text
+			})
+	return tweet_text, all_tweet_data
+
+
 # A function to get all tweets with the users search terms
-def find_relevant_tweets(user_topic_words, clean_tweet_list):
+def find_relevant_tweets(user_topic_words, tweet_text):
 	relevant_tweet_list = set()
-	for tweet in clean_tweet_list:
+	for tweet in tweet_text:
 		for word in tweet.split(" "):
 			if word in user_topic_words:
 				relevant_tweet_list.add(tweet)
@@ -99,7 +121,7 @@ def find_relevant_tweets(user_topic_words, clean_tweet_list):
 
 
 def clean_text(relevant_tweet_list):
-	clean_tweet_list = []
+	tweet_text = []
 	for tweet in relevant_tweet_list:
 		tokens = tweet.split()
 		tokens = [word.lower() for word in tokens]
@@ -112,38 +134,19 @@ def clean_text(relevant_tweet_list):
 		# text = text.replace('rt', '')
 		text = text.replace("thanks", "thank")
 		text = text.replace('u.s.', 'usa')
-		# text = text.replace('rt', '')
 		text = text.replace('dems', 'democrats')
 		text_list = text.split()
-		clean_tweet_list.append(text_list)
-	return clean_tweet_list
-
-# def clean_text(relevant_tweet_list):
-# 	for text in relevant_tweet_list:
-# 		tokens = text.split()
-# 		tokens = [word.lower() for word in tokens]
-# 		content_words = [w for w in tokens if not w in stop_words]
-# 		text = ["".join(c for c in word if c.isalpha()) for word in content_words]
-# 		text = text.replace('&amp', '')
-# 		text = text.replace('realdonaldtrump', '')
-# 		text = text.replace("thank", "thanks")
-# 		text = text.replace('U.S.', 'usa')
-# 		text = text.replace('RT', '')
-# 		text = text.replace('dems', 'democrats')
-# 		clean_tweet_list.append(text)
-# 	return clean_tweet_list
+		tweet_text.append(text_list)
+	return tweet_text
 
 if __name__ == "__main__":
 	user_search_words = get_user_search_topic()
-	print("search words", user_search_words)
-	clean_tweet_list = load_tweets()
+	tweet_text, all_tweet_data = load_tweets()
 	user_topic_words = get_words_for_topic(user_search_words)
-	print(user_topic_words)
-	relevant_tweet_list = find_relevant_tweets(user_topic_words, clean_tweet_list)
-	clean_tweet_list = clean_text(relevant_tweet_list)
+	relevant_tweet_list = find_relevant_tweets(user_topic_words, tweet_text)
+	tweet_text = clean_text(relevant_tweet_list)
 	print(f"there are {len(relevant_tweet_list)} tweets containing the search term(s) {user_topic_words}")
-	create_word_cloud(clean_tweet_list)
-	# create_scatter_plot(user_search_words, relevant_tweet_list)
+	create_word_cloud(tweet_text)
+	# create_scatter_plot(user_topic_words, all_tweet_data)
 
 
-# add the original text to the hover?
