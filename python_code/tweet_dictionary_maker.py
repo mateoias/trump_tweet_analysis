@@ -17,21 +17,25 @@ def load_data():
 			tweet_list.append(data)
 	return tweet_list
 
-#rdef to replace some abreviations,delete unecessary symbols, remove punctuation and stop words
+#def to replace some abreviations,delete unecessary symbols, remove punctuation and stop words
 def clean_text():
 	clean_tweet_list = []
 	tweet_list = load_data()
-	for text in tweet_list:
-		text = text.replace('&amp', '')
-		text = text.replace("thank", "thanks")
-		text = text.replace('U.S.', 'usa')
-		text = text.replace('RT', '')
-		text = text.replace('dems', 'democrats')
-		tokens = text.split()
+	for tweet in tweet_list:
+		tokens = tweet.split()
 		tokens = [word.lower() for word in tokens]
 		content_words = [w for w in tokens if not w in stop_words]
-		tokens = ["".join(c for c in word if c.isalpha()) for word in tokens]
-		clean_tweet_list.append(tokens)
+		text_alphabetic = ["".join(c for c in word if c.isalpha()) for word in content_words]
+		text = " ".join(text_alphabetic)
+		text = text.replace('amp', '')
+		text = text.replace('realdonaldtrump', '')
+		# text = text.replace('rt', '')
+		text = text.replace("thanks", "thank")
+		text = text.replace('u.s.', 'usa')
+		# text = text.replace('rt', '')
+		text = text.replace('dems', 'democrats')
+		text_list = text.split()
+		clean_tweet_list.append(text_list)
 	return clean_tweet_list
 
 # def to count word frequency and make a vocab list of all words used
