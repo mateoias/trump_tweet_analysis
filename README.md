@@ -1,5 +1,5 @@
 # Trump Tweet Analysis
-This project began as an analysis of Donald Trump's tweets and their effects on the stock market.  We didn't find any significant effect on the stock market, but I am continuing to parse and organize the tweets to make them accessiblke and searchable for the user. 
+This project began as an analysis of Donald Trump's tweets and their effects on the stock market. I am continuing to parse and organize the tweets to make them accessible and searchable for the user. 
 
 ### Tools/Packages Used:
 * sklearn.decomposition, sklearn.feature_extraction, sklearn.cluster
@@ -17,7 +17,7 @@ This project began as an analysis of Donald Trump's tweets and their effects on 
 * plotly
 
 #### Datasets
-This project is based on two datasets. One is the complete set of Trump's tweets taken from the trump twitter archive (http://www.trumptwitterarchive.com/archive) and extending to the point at which he was banned by twitter. The other is the  Dow Jones Industrial Average daily information for the time period in which he was president. I created a dataframe matching the tweets and Dow Jones information over time and looked for significant effectcts of tweet sentiment on the Dow Jones.  In general the sentiment vs Dow results were non linear and it was hard to find a clear pattern in them.
+This project is based on two datasets. One is the complete set of Trump's tweets taken from the trump twitter archive (http://www.trumptwitterarchive.com/archive) and extending to the point at which he was banned by twitter. The other is the  Dow Jones Industrial Average daily information for the time period in which he was president. I created a dataframe matching the tweets and Dow Jones information over time and looked for significant effects of tweet sentiment on the Dow Jones.  In general the sentiment vs Dow results were non linear and it was hard to find a clear pattern in them.
 #### Sentiment analysis
 I ran a variety of sentiment analysis algorithms, including textblob, Naive Bayes and Vader. Vader was the most effective so I created a new dataset including Vader sentiment scores. Then I built an exploratory interface where a user can graph different aspects of the data and look for patterns. For example, plotting the tweet sentiment for some set of search terms over time (see user_searchable_tweet_dataframe.py).
 #### Topic categorization
