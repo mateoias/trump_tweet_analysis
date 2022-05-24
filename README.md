@@ -1,5 +1,5 @@
 # Trump Tweet Analysis
-This project began as an analysis of Donald Trump's tweets and their effects on the stock market. I am continuing to parse and organize the tweets to make them accessible and searchable for the user. 
+This project began as an analysis of Donald Trump's tweets and their effects on the stock market. I have also parsed and organized the tweets to make them accessible and searchable for the user. 
 
 ### Tools/Packages Used:
 * sklearn.decomposition, sklearn.feature_extraction, sklearn.cluster
